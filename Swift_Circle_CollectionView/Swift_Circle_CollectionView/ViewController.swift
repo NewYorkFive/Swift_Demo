@@ -12,8 +12,6 @@ import UIKit
 
 private let collectionViewCellId = "collectionViewCellId"
 
-private let maxTanValue = 10000
-private let minTanValue = -10000
 class ViewController: UIViewController {
 
     override func viewDidLoad() {
@@ -44,6 +42,7 @@ class ViewController: UIViewController {
 }
 
 var lastPosition:CGPoint = CGPoint.zero
+var currentAngle:CGFloat = 0.0
 
 extension ViewController{
     @objc func panAction(sender:UIPanGestureRecognizer){
@@ -60,10 +59,12 @@ extension ViewController{
         print(angle)
         print(" ")
         
-        if angle > CGFloat.pi / 180.0 || angle < CGFloat.pi / -180.0 {
+//        if angle > CGFloat.pi / 180.0 * 2 || angle < CGFloat.pi / -180.0 * 2 {
+//            currentAngle = currentAngle + angle;
+//            collectionView.transform = CGAffineTransform.init(rotationAngle: currentAngle)
             collectionView.transform = collectionView.transform.rotated(by: angle)
-            lastPosition = point
-        }
+            lastPosition = CGPoint.zero
+//        }
     }
     
     func calculateAngle(center:CGPoint, firstPoint:CGPoint, secondPoint:CGPoint) -> CGFloat {
