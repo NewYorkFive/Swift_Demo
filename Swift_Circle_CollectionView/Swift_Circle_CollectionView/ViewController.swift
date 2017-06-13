@@ -9,8 +9,11 @@
 //collectionview的cell做环形布局
 
 import UIKit
+
 private let collectionViewCellId = "collectionViewCellId"
 
+private let maxTanValue = 10000
+private let minTanValue = -10000
 class ViewController: UIViewController {
 
     override func viewDidLoad() {
@@ -22,6 +25,11 @@ class ViewController: UIViewController {
         view.addSubview(collectionView)
         collectionView.frame = CGRect.init(x: 0, y: 0, width: 300, height: 300)
         collectionView.center = view.center
+        collectionView.backgroundColor = view.backgroundColor
+        
+        let panGesture = UIPanGestureRecognizer.init(target: self, action: #selector(panAction))
+        collectionView.addGestureRecognizer(panGesture)
+        panGesture.delegate = self
     }
 
     fileprivate lazy var collectionView:UICollectionView = {
@@ -31,6 +39,61 @@ class ViewController: UIViewController {
         return collectionView
     }()
 
+    
+    
+}
+
+var lastPosition:CGPoint = CGPoint.zero
+
+extension ViewController{
+    @objc func panAction(sender:UIPanGestureRecognizer){
+        let point = sender.location(in: sender.view)
+        if lastPosition == point {
+            return
+        }
+        if lastPosition == CGPoint.zero {
+            lastPosition = point
+            return
+        }
+        let angle = calculateAngle(center: CGPoint.init(x: collectionView.bounds.size.width * 0.5, y: collectionView.bounds.size.height * 0.5), firstPoint:  lastPosition, secondPoint: point)
+        print("angle")
+        print(angle)
+        print(" ")
+        
+        if angle > CGFloat.pi / 180.0 || angle < CGFloat.pi / -180.0 {
+            collectionView.transform = collectionView.transform.rotated(by: angle)
+            lastPosition = point
+        }
+    }
+    
+    func calculateAngle(center:CGPoint, firstPoint:CGPoint, secondPoint:CGPoint) -> CGFloat {
+        
+        let firstPointInCoordinates = CGPoint.init(x: firstPoint.x - center.x, y: center.y - firstPoint.y)
+        let firstTanValue = firstPointInCoordinates.x / firstPointInCoordinates.y;
+        let firstAngle = atan(firstTanValue)
+        
+        let secondPointInCoordinates = CGPoint.init(x: secondPoint.x - center.x, y: center.y - secondPoint.y)
+        let secondTanValue = secondPointInCoordinates.x / secondPointInCoordinates.y;
+        let secondAngle = atan(secondTanValue)
+        
+//        print("firstPoint:" + NSStringFromCGPoint(firstPoint))
+//        print("secondPoint:" + NSStringFromCGPoint(secondPoint))
+//        print("center:" + NSStringFromCGPoint(center))
+        
+//        print(firstAngle)
+//        print(secondAngle)
+        
+//        print(" ")
+        return secondAngle - firstAngle;
+    }
+}
+
+extension ViewController:UIGestureRecognizerDelegate {
+    func gestureRecognizerShouldBegin(_ gestureRecognizer: UIGestureRecognizer) -> Bool {
+        lastPosition = CGPoint.zero
+        print("should began")
+        return true
+    }
 }
 
 
